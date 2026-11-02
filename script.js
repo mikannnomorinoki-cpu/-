@@ -1,6 +1,6 @@
 // ======================================
 // サイト共通スクリプト
-// テーマ設定・投稿データ・ページ表示
+// 設定・投稿データ・ページ表示を順番に読み込む
 // ======================================
 
 // ダークモード
@@ -33,19 +33,25 @@ if (toggle) {
   });
 }
 
-// ページ表示の準備
-function loadSiteScripts() {
-  const postsScript = document.createElement("script");
-
-  postsScript.src = "posts.js";
-
-  postsScript.onload = () => {
-    const siteScript = document.createElement("script");
-    siteScript.src = "site.js";
-    document.body.appendChild(siteScript);
-  };
-
-  document.body.appendChild(postsScript);
+// JavaScriptファイルを順番に読み込む
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error(src + " の読み込みに失敗しました"));
+    document.body.appendChild(script);
+  });
 }
 
-loadSiteScripts();
+async function initializeSite() {
+  try {
+    await loadScript("site-config.js");
+    await loadScript("posts.js");
+    await loadScript("site.js");
+  } catch (error) {
+    console.error("サイトの読み込みエラー:", error);
+  }
+}
+
+initializeSite();
