@@ -257,3 +257,73 @@ body.dark .panel article {
     padding: 18px;
   }
 }
+
+/* =================================
+   投稿カード・記事ページ
+================================= */
+
+.post-card {
+  background: var(--bg);
+  border: 1px solid var(--yellow);
+  border-radius: 16px;
+  padding: 18px;
+  margin: 14px 0;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.post-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+
+.post-card small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.post-card h3 {
+  margin: 8px 0;
+  font-size: 17px;
+}
+
+.post-card h3 a:hover,
+.post-card > a:hover {
+  color: var(--orange);
+}
+
+.post-card > a {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--orange);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.article-content {
+  padding: clamp(20px, 5vw, 45px);
+  line-height: 2;
+  overflow-wrap: anywhere;
+}
+
+.article-content p {
+  white-space: normal;
+}
+
+.article-content p:first-child {
+  margin-top: 0;
+}
+
+body.dark .post-card {
+  background: #303331;
+  border-color: #6d634c;
+}
+
+@media (max-width: 650px) {
+  .post-card {
+    padding: 15px;
+  }
+
+  .post-card h3 {
+    font-size: 16px;
+  }
+}
