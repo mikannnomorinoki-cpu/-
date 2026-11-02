@@ -1,7 +1,10 @@
-// ダークモードの設定
-const toggle = document.getElementById("theme-toggle");
+// ======================================
+// サイト共通スクリプト
+// テーマ設定・投稿データ・ページ表示
+// ======================================
 
-// 保存済みの設定を読み込む
+// ダークモード
+const toggle = document.getElementById("theme-toggle");
 const savedTheme = localStorage.getItem("theme");
 
 if (savedTheme === "dark") {
@@ -17,7 +20,6 @@ function updateThemeButton() {
 
 updateThemeButton();
 
-// ボタンで切り替え
 if (toggle) {
   toggle.addEventListener("click", () => {
     document.body.classList.toggle("dark");
@@ -30,3 +32,20 @@ if (toggle) {
     updateThemeButton();
   });
 }
+
+// ページ表示の準備
+function loadSiteScripts() {
+  const postsScript = document.createElement("script");
+
+  postsScript.src = "posts.js";
+
+  postsScript.onload = () => {
+    const siteScript = document.createElement("script");
+    siteScript.src = "site.js";
+    document.body.appendChild(siteScript);
+  };
+
+  document.body.appendChild(postsScript);
+}
+
+loadSiteScripts();
