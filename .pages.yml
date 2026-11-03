@@ -89,7 +89,10 @@ content:
         label: 作品タイトル
         type: string
         required: true
-      -       - name: tags
+      - name: kind
+        label: 作品の種類
+        type: string
+      - name: tags
         label: タグ（複数追加できます）
         type: string
         list: true
