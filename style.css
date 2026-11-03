@@ -1008,3 +1008,42 @@ body.dark .creation-filter.active {
   color: var(--muted);
   text-align: center;
 }
+
+/* =========================================
+   プロフィール・SNSリンク
+========================================= */
+
+.profile-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profile-link {
+  display: inline-block;
+  padding: 9px 17px;
+  border: 1px solid var(--cyan-dark);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 800;
+  transition: transform .2s, background .2s;
+}
+
+.profile-link:hover {
+  transform: translateY(-2px);
+  background: var(--cyan);
+  color: var(--text);
+}
+
+body.dark .profile-link {
+  border-color: var(--cyan-dark);
+  background: #3c5558;
+  color: var(--text);
+}
+
+body.dark .profile-link:hover {
+  background: var(--cyan);
+  color: #282c30;
+}
