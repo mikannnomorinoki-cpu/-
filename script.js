@@ -5,11 +5,27 @@
 
   if (savedTheme === "dark") document.body.classList.add("dark");
 
+  // 太陽・スイッチ・月の表示を作り、現在のテーマに合わせて状態を更新
   function updateThemeButton() {
-    if (toggle) {
-      toggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
-    }
+    if (!toggle) return;
+
+    const isDark = document.body.classList.contains("dark");
+
+    toggle.innerHTML = `
+      <span class="theme-toggle__sun" aria-hidden="true">☼</span>
+      <span class="theme-toggle__track" aria-hidden="true">
+        <span class="theme-toggle__thumb"></span>
+      </span>
+      <span class="theme-toggle__moon" aria-hidden="true">☾</span>
+    `;
+    toggle.setAttribute(
+      "aria-label",
+      isDark ? "ライトモードに切り替え" : "ナイトモードに切り替え"
+    );
+    toggle.setAttribute("aria-pressed", String(isDark));
+    toggle.setAttribute("title", isDark ? "ライトモードに切り替え" : "ナイトモードに切り替え");
   }
+
   updateThemeButton();
 
   if (toggle) {
