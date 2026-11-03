@@ -118,15 +118,18 @@ content:
     type: file
     path: data/profile.json
     format: json
-    fields:
+        fields:
       - name: name
         label: 名前
         type: string
       - name: intro
         label: 自己紹介
         type: text
-      - name: favorites
-        label: 好きなもの
+      - name: other
+        label: その他
+        type: text
+      - name: links
+        label: SNS・外部リンク（1行に1件）
         type: text
       - name: avatarEmoji
         label: アイコンの絵文字
