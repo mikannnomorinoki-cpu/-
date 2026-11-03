@@ -972,13 +972,14 @@ body.dark .header .theme-toggle__thumb {
   }
 }
 
-/* サイト名を中央あたりで折り返す */
+/* サイト名：中央揃え＋自動改行 */
 .header .logo {
   white-space: normal;
   overflow-wrap: break-word;
   word-break: normal;
   min-width: 0;
-  max-width: 180px;
-  line-height: 1.2;
   text-align: center;
+  line-height: 1.2;
+  max-width: 180px;
+  flex-shrink: 1;
 }
