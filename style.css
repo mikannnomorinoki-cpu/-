@@ -920,3 +920,91 @@ body.dark .header .theme-toggle__thumb {
     font-size: clamp(8px, 2.7vw, 11px);
   }
 }
+
+/* =========================================
+   作品タグ・タグ絞り込み
+========================================= */
+
+/* タグの並び */
+.creation-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 10px 0;
+}
+
+/* タグ本体 */
+.creation-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 1px solid var(--cyan-dark);
+  border-radius: 999px;
+  background: var(--cyan);
+  color: #31565a;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+body.dark .creation-tag {
+  background: #477d82;
+  border-color: #83dce0;
+  color: #fff3df;
+}
+
+/* 絞り込みボタンのエリア */
+.creation-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 18px 0 22px;
+  padding-bottom: 17px;
+  border-bottom: 1px dashed var(--line);
+}
+
+/* 絞り込みボタン */
+.creation-filter {
+  padding: 7px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .2s, color .2s, transform .2s;
+}
+
+.creation-filter:hover {
+  transform: translateY(-2px);
+  border-color: var(--orange);
+}
+
+.creation-filter.active {
+  border-color: var(--orange);
+  background: var(--orange);
+  color: white;
+}
+
+body.dark .creation-filter {
+  background: #46423a;
+  border-color: var(--line);
+  color: var(--text);
+}
+
+body.dark .creation-filter.active {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #282c30;
+}
+
+/* 絞り込みで非表示になった作品 */
+#creation-list .post-card[hidden] {
+  display: none;
+}
+
+#creation-no-results {
+  padding: 20px 0;
+  color: var(--muted);
+  text-align: center;
+}
