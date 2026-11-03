@@ -663,3 +663,13 @@ body.dark .theme-toggle__moon {
     margin-inline: auto;
   }
 }
+
+/* 狭い画面でもテーマ切り替えボタンを上段に固定 */
+@media (max-width: 650px) {
+  #theme-toggle {
+    position: absolute;
+    top: 16px;
+    right: 12px;
+    margin: 0;
+  }
+}
