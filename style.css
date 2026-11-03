@@ -971,3 +971,12 @@ body.dark .header .theme-toggle__thumb {
     font-size: 10px;
   }
 }
+
+/* サイト名が長い場合は自動で折り返す */
+.header .logo {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  line-height: 1.2;
+  text-align: left;
+}
