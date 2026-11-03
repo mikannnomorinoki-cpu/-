@@ -690,3 +690,61 @@ body.dark .theme-toggle__moon {
     margin: 0;
   }
 }
+
+/* メニューを囲いなしの横並びに変更 */
+.menu {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 35px;
+}
+
+.menu a,
+.menu a:nth-child(even) {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 12px 2px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+  font-size: 23px;
+  white-space: nowrap;
+}
+
+.menu a:hover,
+.menu a:nth-child(even):hover {
+  transform: translateY(-3px);
+  color: var(--orange-dark);
+  background: transparent;
+  box-shadow: none;
+}
+
+.menu span {
+  display: block;
+  font-size: 12px;
+  letter-spacing: .3px;
+}
+
+@media (max-width: 650px) {
+  .menu {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 2px;
+  }
+
+  .menu a,
+  .menu a:nth-child(even) {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 0;
+    font-size: 20px;
+  }
+
+  .menu span {
+    font-size: 10px;
+  }
+}
