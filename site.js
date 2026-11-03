@@ -119,22 +119,29 @@ function sortedPosts(type = null) {
       </section>`;
   }
 
-  function profileIntro(compact = false) {
+    function profileIntro(compact = false) {
     const avatarImage = safeUrl(profile.avatarImage);
     const avatar = avatarImage
       ? `<img src="${escapeHTML(avatarImage)}" alt="" class="avatar-image">`
       : escapeHTML(profile.avatarEmoji || "🍊");
+
+    // トップページでは簡易プロフィール、
+    // プロフィールページでは全文を表示
+    const description = compact
+      ? profile.shortIntro || ""
+      : profile.intro || "";
+
     return `
       <section class="intro">
         <div class="avatar">${avatar}</div>
         <div>
           <h2>${escapeHTML(profile.name || "名前")}</h2>
-          <p>${escapeHTML(profile.intro || "")}</p>
+          <p style="white-space: pre-line">${escapeHTML(description)}</p>
           ${compact ? '<a href="profile.html">プロフィールを見る →</a>' : ""}
         </div>
       </section>`;
   }
-
+  
   function homePage() {
     const news = sortedPosts("news").slice(0, 3);
     const recent = sortedPosts().filter(post => post.type !== "news").slice(0, 5);
