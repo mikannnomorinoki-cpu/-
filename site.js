@@ -55,21 +55,6 @@ function sortedPosts(type = null) {
 }
 
 
-    function getPostTags(post) {
-    if (Array.isArray(post.tags)) {
-      return post.tags
-        .map(tag => String(tag).trim())
-        .filter(Boolean);
-    }
-
-    // 以前のデータ形式との互換性
-    if (typeof post.tags === "string" && post.tags.trim()) {
-      return post.tags.split(",").map(tag => tag.trim()).filter(Boolean);
-    }
-
-    return [];
-  }
-
   // 作品の種類と複数タグをまとめて取得する
   function getPostTags(post) {
     let tags = [];
