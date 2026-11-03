@@ -1,5 +1,4 @@
 {
-  "headerImage": "",
   "headerImagePosition": "center",
-  "headerImageMode": "cover"
+  "headerImageMode": "contain"
 }
