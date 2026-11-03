@@ -208,7 +208,7 @@ function sortedPosts(type = null) {
     const post = posts.find(item => item.id === id);
 
     if (!post) {
-      return `${hero("NOT FOUND", "記事が見つかりません", "記事が削除されたか、URLが間違っている可能性があります。")}
+      return `${hero("NOT FOUND", "記事が見つからないぜ！", "記事を削除されたか、URLが間違ってるのカモ。")}
         <p style="text-align:center"><a href="index.html">ホームへ戻る →</a></p>`;
     }
 
@@ -251,47 +251,23 @@ function sortedPosts(type = null) {
       <p style="text-align:center; margin-top:30px"><a href="${backPage}">← 一覧に戻る</a></p>`;
   }
 
-    function profilePage() {
-    // SNS・外部リンクを取得
-    const links = String(profile.links || "")
-      .split("\n")
-      .map(line => {
-        const parts = line.split("|");
-        const label = (parts[0] || "").trim();
-        const url = (parts[1] || "").trim();
-
-        // HTTP・HTTPSのURLだけをリンクとして使用
-        if (!label || !/^https?:\/\//i.test(url)) {
-          return "";
-        }
-
-        return `
-          <a class="profile-link"
-             href="${escapeHTML(url)}"
-             target="_blank"
-             rel="noopener noreferrer">
-            ${escapeHTML(label)} →
-          </a>`;
-      })
-      .filter(Boolean)
-      .join("");
-
-    const linksHTML = links || "<p>リンクはまだありません。</p>";
+      function profilePage() {
+    // その他欄に書かれたURLを自動的にリンクにする
+    const otherText = String(profile.other || "");
+    const linkedOther = escapeHTML(otherText)
+      .replace(
+        /https?:\/\/[^\s<>"']+/g,
+        url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+      )
+      .replace(/\n/g, "<br>");
 
     return `
-      ${hero("ABOUT ME", "Profile", "わたしについて")}
+      ${hero("ABOUT ME", "Profile", "みかんのめいさんちぃはコイツ")}
       ${profileIntro(false)}
 
       <section class="panel">
-        <h2>🔗 SNS・外部リンク</h2>
-        <div class="profile-links">
-          ${linksHTML}
-        </div>
-      </section>
-
-      <section class="panel">
         <h2>🌼 その他</h2>
-        <p>${escapeHTML(profile.other || "").replace(/\n/g, "<br>")}</p>
+        <p>${linkedOther}</p>
       </section>
 
       <p style="text-align:center; margin-top:30px">
