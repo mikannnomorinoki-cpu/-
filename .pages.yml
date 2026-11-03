@@ -89,9 +89,10 @@ content:
         label: 作品タイトル
         type: string
         required: true
-      - name: kind
-        label: 作品の種類
+      -       - name: tags
+        label: タグ（複数追加できます）
         type: string
+        list: true
       - name: excerpt
         label: 作品の説明
         type: text
