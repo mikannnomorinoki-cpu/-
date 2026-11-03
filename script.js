@@ -1,57 +1,74 @@
-// ======================================
-// サイト共通スクリプト
-// 設定・投稿データ・ページ表示を順番に読み込む
-// ======================================
+// サイト共通スクリプト：テーマ設定とJSONデータの読み込み
+(() => {
+  const toggle = document.getElementById("theme-toggle");
+  const savedTheme = localStorage.getItem("theme");
 
-// ダークモード
-const toggle = document.getElementById("theme-toggle");
-const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark") document.body.classList.add("dark");
 
-if (savedTheme === "dark") {
-  document.body.classList.add("dark");
-}
+  function updateThemeButton() {
+    if (toggle) {
+      toggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+    }
+  }
+  updateThemeButton();
 
-function updateThemeButton() {
   if (toggle) {
-    toggle.textContent =
-      document.body.classList.contains("dark") ? "☀️" : "🌙";
+    toggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem(
+        "theme",
+        document.body.classList.contains("dark") ? "dark" : "light"
+      );
+      updateThemeButton();
+    });
   }
-}
 
-updateThemeButton();
-
-if (toggle) {
-  toggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-
-    const theme = document.body.classList.contains("dark")
-      ? "dark"
-      : "light";
-
-    localStorage.setItem("theme", theme);
-    updateThemeButton();
-  });
-}
-
-// JavaScriptファイルを順番に読み込む
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = src;
-    script.onload = resolve;
-    script.onerror = () => reject(new Error(src + " の読み込みに失敗しました"));
-    document.body.appendChild(script);
-  });
-}
-
-async function initializeSite() {
-  try {
-    await loadScript("site-config.js");
-    await loadScript("posts.js");
-    await loadScript("site.js");
-  } catch (error) {
-    console.error("サイトの読み込みエラー:", error);
+  async function loadJSON(path) {
+    const response = await fetch(path, { cache: "no-store" });
+    if (!response.ok) throw new Error(`${path} の読み込みに失敗しました (${response.status})`);
+    return response.json();
   }
-}
 
-initializeSite();
+  async function initializeSite() {
+    const main = document.querySelector("main");
+    try {
+      const [news, logs, creations, site, header, profile] = await Promise.all([
+        loadJSON("data/news.json"),
+        loadJSON("data/logs.json"),
+        loadJSON("data/creations.json"),
+        loadJSON("data/site.json"),
+        loadJSON("data/header.json"),
+        loadJSON("data/profile.json")
+      ]);
+
+      window.SITE_POSTS = [
+        ...(Array.isArray(news) ? news.map(post => ({ ...post, type: "news" })) : []),
+        ...(Array.isArray(logs) ? logs.map(post => ({ ...post, type: "log" })) : []),
+        ...(Array.isArray(creations) ? creations.map(post => ({ ...post, type: "creation" })) : [])
+      ];
+      window.SITE_CONFIG = { ...site, ...header };
+      window.SITE_PROFILE = profile;
+
+      const script = document.createElement("script");
+      script.src = "site.js";
+      script.onerror = () => {
+        throw new Error("site.js の読み込みに失敗しました");
+      };
+      document.body.appendChild(script);
+    } catch (error) {
+      console.error("サイトの読み込みエラー:", error);
+      if (main) {
+        main.innerHTML = `
+          <section class="panel">
+            <h1>ページを読み込めませんでした</h1>
+            <p>データファイルの場所やJSONの書式を確認してください。</p>
+            <p><code>${String(error.message).replace(/[&<>"']/g, c => ({
+              "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            })[c])}</code></p>
+          </section>`;
+      }
+    }
+  }
+
+  initializeSite();
+})();

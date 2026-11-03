@@ -1,0 +1,179 @@
+media:
+  - name: images
+    label: 画像
+    input: media/images
+    output: /-/media/images
+    rename: safe
+    extensions: [jpg, jpeg, png, webp, gif]
+
+  - name: files
+    label: 添付ファイル
+    input: media/files
+    output: /-/media/files
+    rename: safe
+    categories: [document, audio, video, compressed]
+
+content:
+  - name: news
+    label: 📢 お知らせ
+    type: file
+    path: data/news.json
+    format: json
+    list: true
+    fields:
+      - name: id
+        label: 記事ID（英数字とハイフン）
+        type: string
+        required: true
+        pattern: "^[a-z0-9-]+$"
+      - name: date
+        label: 投稿日
+        type: date
+        required: true
+      - name: title
+        label: タイトル
+        type: string
+        required: true
+      - name: excerpt
+        label: 概要
+        type: text
+      - name: content
+        label: 本文
+        type: text
+        required: true
+
+  - name: logs
+    label: 📖 日記・活動記録
+    type: file
+    path: data/logs.json
+    format: json
+    list: true
+    fields:
+      - name: id
+        label: 記事ID（英数字とハイフン）
+        type: string
+        required: true
+        pattern: "^[a-z0-9-]+$"
+      - name: date
+        label: 投稿日
+        type: date
+        required: true
+      - name: title
+        label: タイトル
+        type: string
+        required: true
+      - name: excerpt
+        label: 概要
+        type: text
+      - name: content
+        label: 本文
+        type: text
+        required: true
+
+  - name: creations
+    label: 🎨 作品
+    type: file
+    path: data/creations.json
+    format: json
+    list: true
+    fields:
+      - name: id
+        label: 作品ID（英数字とハイフン）
+        type: string
+        required: true
+        pattern: "^[a-z0-9-]+$"
+      - name: date
+        label: 制作日
+        type: date
+      - name: title
+        label: 作品タイトル
+        type: string
+        required: true
+      - name: kind
+        label: 作品の種類
+        type: string
+      - name: excerpt
+        label: 作品の説明
+        type: text
+      - name: content
+        label: 作品本文
+        type: text
+      - name: image
+        label: 作品画像（任意）
+        type: image
+        options:
+          media: images
+      - name: attachment
+        label: 添付ファイル（任意）
+        type: file
+        options:
+          media: files
+
+  - name: profile
+    label: 👤 プロフィール
+    type: file
+    path: data/profile.json
+    format: json
+    fields:
+      - name: name
+        label: 名前
+        type: string
+      - name: intro
+        label: 自己紹介
+        type: text
+      - name: favorites
+        label: 好きなもの
+        type: text
+      - name: avatarEmoji
+        label: アイコンの絵文字
+        type: string
+      - name: avatarImage
+        label: プロフィール画像
+        type: image
+        options:
+          media: images
+
+  - name: site
+    label: ⚙️ サイト設定
+    type: file
+    path: data/site.json
+    format: json
+    fields:
+      - name: siteName
+        label: サイト名
+        type: string
+        required: true
+      - name: logo
+        label: ロゴ
+        type: string
+      - name: heroEyebrow
+        label: ヘッダー上部の短い文章
+        type: string
+      - name: heroTitle
+        label: トップページのタイトル
+        type: string
+      - name: heroDescription
+        label: トップページの説明
+        type: text
+
+  - name: header
+    label: 🖼️ ヘッダー画像
+    type: file
+    path: data/header.json
+    format: json
+    fields:
+      - name: headerImage
+        label: 使用する画像
+        type: image
+        options:
+          media: images
+      - name: headerImagePosition
+        label: 画像の位置
+        type: select
+        options:
+          values: [center, top, bottom, left, right]
+      - name: headerImageMode
+        label: 画像の表示方法
+        type: select
+        options:
+          values: [cover, contain]

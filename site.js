@@ -1,97 +1,78 @@
-// ======================================
-// サイト共通表示システム
-// 設定ファイルと投稿データを各ページに反映
-// ======================================
-
+// サイト共通表示システム：JSONから受け取ったデータを各ページに表示
 (() => {
   const posts = window.SITE_POSTS || [];
   const config = window.SITE_CONFIG || {};
+  const profile = window.SITE_PROFILE || {};
   const main = document.querySelector("main");
-
   if (!main) return;
 
   const page = location.pathname.split("/").pop() || "index.html";
-
   const types = {
     news: "お知らせ",
     log: "日記・活動記録",
     creation: "創作作品"
   };
 
-  // HTMLとして安全に表示するための変換
   function escapeHTML(value) {
     return String(value ?? "").replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
     })[char]);
   }
 
-  // サイト名とロゴを反映
-  function applySiteSettings() {
-    const logo = document.querySelector(".logo");
-
-    if (logo) {
-      logo.textContent =
-        `${config.logo || "🍊"} ${config.siteName || "わたしのサイト"}`;
-    }
-
-    document.title =
-      `${config.siteName || "わたしのサイト"}`;
+  function safeUrl(value) {
+    const url = String(value || "").trim();
+    if (!url) return "";
+    // 相対パスとHTTP(S)のみ許可。javascript: 等は表示しない。
+    if (/^(https?:\/\/|\/|\.{1,2}\/|[a-zA-Z0-9_-])/i.test(url) &&
+        !/^\s*javascript:/i.test(url)) return url;
+    return "";
   }
 
+  function applySiteSettings() {
+    const siteName = config.siteName || "わたしのサイト";
+    const logo = document.querySelector(".logo");
+    if (logo) logo.textContent = `${config.logo || "🍊"} ${siteName}`;
+    document.title = siteName;
+    document.querySelectorAll("footer").forEach(el => {
+      el.textContent = `© ${siteName}`;
+    });
+  }
   applySiteSettings();
 
-  // 日付の新しい順に並べる
   function sortedPosts(type = null) {
     return posts
       .filter(post => !type || post.type === type)
       .slice()
-      .sort((a, b) =>
-        String(b.date).localeCompare(String(a.date))
-      );
+      .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
   }
 
-  // 投稿カード
   function postCard(post) {
+    const image = post.type === "creation" && safeUrl(post.image)
+      ? `<img class="creation-thumb" src="${escapeHTML(safeUrl(post.image))}" alt="${escapeHTML(post.title)}">`
+      : "";
     return `
       <article class="post-card">
         <small>${escapeHTML(post.date)} ・ ${escapeHTML(types[post.type] || "投稿")}</small>
-        <h3>
-          <a href="article.html?id=${encodeURIComponent(post.id)}">
-            ${escapeHTML(post.title)}
-          </a>
-        </h3>
+        ${image}
+        <h3><a href="article.html?id=${encodeURIComponent(post.id)}">${escapeHTML(post.title)}</a></h3>
         <p>${escapeHTML(post.excerpt)}</p>
-        <a href="article.html?id=${encodeURIComponent(post.id)}">
-          続きを読む →
-        </a>
-      </article>
-    `;
+        <a href="article.html?id=${encodeURIComponent(post.id)}">続きを読む →</a>
+      </article>`;
   }
 
   function postList(type) {
     const items = sortedPosts(type);
-
-    if (!items.length) {
-      return "<p>まだ投稿はありません。これから更新していくよ！</p>";
-    }
-
+    if (!items.length) return "<p>まだ投稿はありません。これから更新していくよ！</p>";
     return items.map(postCard).join("");
   }
 
-  // ヘッダー画像付きメインビジュアル
   function hero(label, heading, description) {
-    const image = config.headerImage
-      ? `<img class="hero-image"
-          src="${escapeHTML(config.headerImage)}"
-          alt=""
+    const imageUrl = safeUrl(config.headerImage);
+    const image = imageUrl
+      ? `<img class="hero-image" src="${escapeHTML(imageUrl)}" alt=""
           style="object-position:${escapeHTML(config.headerImagePosition || "center")};
           object-fit:${escapeHTML(config.headerImageMode || "cover")}">`
       : "";
-
     return `
       <section class="hero">
         ${image}
@@ -100,134 +81,122 @@
           <h1>${escapeHTML(heading)}</h1>
           <p>${escapeHTML(description)}</p>
         </div>
-      </section>
-    `;
+      </section>`;
   }
 
-  // ホームページ
+  function profileIntro(compact = false) {
+    const avatarImage = safeUrl(profile.avatarImage);
+    const avatar = avatarImage
+      ? `<img src="${escapeHTML(avatarImage)}" alt="" class="avatar-image">`
+      : escapeHTML(profile.avatarEmoji || "🍊");
+    return `
+      <section class="intro">
+        <div class="avatar">${avatar}</div>
+        <div>
+          <h2>${escapeHTML(profile.name || "名前")}</h2>
+          <p>${escapeHTML(profile.intro || "")}</p>
+          ${compact ? '<a href="profile.html">プロフィールを見る →</a>' : ""}
+        </div>
+      </section>`;
+  }
+
   function homePage() {
     const news = sortedPosts("news").slice(0, 3);
-    const recent = sortedPosts()
-      .filter(post => post.type !== "news")
-      .slice(0, 5);
-
+    const recent = sortedPosts().filter(post => post.type !== "news").slice(0, 5);
     return `
       ${hero(
         config.heroEyebrow || "WELCOME TO MY LITTLE WORLD!",
         config.heroTitle || "ここは、わたしの好きなものを集めた場所。",
         config.heroDescription || "ゆっくりしていってね！"
       )}
-
-      <section class="intro">
-        <div class="avatar">🍊</div>
-        <div>
-          <h2>こんにちは！</h2>
-          <p>ここに自己紹介を書いてね。</p>
-          <a href="profile.html">プロフィールを見る →</a>
-        </div>
-      </section>
-
+      ${profileIntro(true)}
       <section class="menu">
         <a href="profile.html">👤 <span>Profile</span></a>
         <a href="creation.html">🎨 <span>Creation</span></a>
         <a href="log.html">📖 <span>Log</span></a>
         <a href="news.html">📢 <span>News</span></a>
       </section>
-
       <section class="columns">
         <div class="panel">
           <h2>📢 最近のお知らせ</h2>
-          ${news.length
-            ? news.map(postCard).join("")
-            : "<p>まだお知らせはありません。</p>"}
+          ${news.length ? news.map(postCard).join("") : "<p>まだお知らせはありません。</p>"}
           <p><a href="news.html">お知らせをもっと見る →</a></p>
         </div>
-
         <div class="panel">
           <h2>📝 最近のいろいろ</h2>
-          ${recent.length
-            ? recent.map(postCard).join("")
-            : "<p>まだ投稿はありません。</p>"}
+          ${recent.length ? recent.map(postCard).join("") : "<p>まだ投稿はありません。</p>"}
         </div>
-      </section>
-    `;
+      </section>`;
   }
 
-  // 各投稿一覧ページ
   function listPage(type, heading, description) {
     return `
       ${hero(types[type], heading, description)}
       <section class="panel">
+        <h2>${type === "news" ? "📢 お知らせ一覧" : type === "log" ? "📖 最近の記録" : "🎨 作品一覧"}</h2>
         ${postList(type)}
-      </section>
-    `;
+      </section>`;
   }
 
-  // 個別記事ページ
   function articlePage() {
     const id = new URLSearchParams(location.search).get("id");
     const post = posts.find(item => item.id === id);
-
     if (!post) {
-      return `
-        ${hero(
-          "NOT FOUND",
-          "記事が見つかりません",
-          "記事が削除されたか、URLが間違っている可能性があります。"
-        )}
-        <p style="text-align:center">
-          <a href="index.html">ホームへ戻る →</a>
-        </p>
-      `;
+      return `${hero("NOT FOUND", "記事が見つかりません", "記事が削除されたか、URLが間違っている可能性があります。")}
+        <p style="text-align:center"><a href="index.html">ホームへ戻る →</a></p>`;
     }
 
+    const imageUrl = safeUrl(post.image);
+    const attachmentUrl = safeUrl(post.attachment);
+    const media = imageUrl
+      ? `<p class="creation-image-wrap"><img class="creation-image" src="${escapeHTML(imageUrl)}" alt="${escapeHTML(post.title)}"></p>`
+      : "";
+    const attachment = attachmentUrl
+      ? `<p><a href="${escapeHTML(attachmentUrl)}" target="_blank" rel="noopener">📎 添付ファイルを開く</a></p>`
+      : "";
+    const content = escapeHTML(post.content || "").replace(/\n/g, "<br>");
+    const backPage = post.type === "news" ? "news.html" : post.type === "log" ? "log.html" : "creation.html";
+
     return `
-      ${hero(
-        types[post.type] || "ARTICLE",
-        post.title,
-        post.date
-      )}
-
+      ${hero(types[post.type] || "ARTICLE", post.title, post.date || "")}
       <article class="panel article-content">
-        <p>${escapeHTML(post.content).replace(/\n/g, "<br>")}</p>
+        ${media}
+        ${post.kind ? `<p><strong>作品の種類：</strong>${escapeHTML(post.kind)}</p>` : ""}
+        <p>${content}</p>
+        ${attachment}
       </article>
-
-      <p style="text-align:center; margin-top:30px">
-        <a href="${
-          post.type === "news" ? "news.html" :
-          post.type === "log" ? "log.html" :
-          "creation.html"
-        }">← 一覧に戻る</a>
-      </p>
-    `;
+      <p style="text-align:center; margin-top:30px"><a href="${backPage}">← 一覧に戻る</a></p>`;
   }
 
-  // ページごとの表示切り替え
+  function profilePage() {
+    return `
+      ${hero("ABOUT ME", "Profile", "わたしについて")}
+      ${profileIntro(false)}
+      <section class="panel">
+        <h2>🌼 好きなもの</h2>
+        <p>${escapeHTML(profile.favorites || "").replace(/\n/g, "<br>")}</p>
+      </section>
+      <p style="text-align:center; margin-top:30px"><a href="index.html">← ホームへ戻る</a></p>`;
+  }
+
   switch (page) {
     case "index.html":
       main.innerHTML = homePage();
       break;
-
     case "news.html":
-      main.innerHTML = listPage(
-        "news", "News", "サイトからのお知らせ"
-      );
+      main.innerHTML = listPage("news", "News", "サイトからのお知らせ");
       break;
-
     case "log.html":
-      main.innerHTML = listPage(
-        "log", "Log", "日々の記録・活動ログ"
-      );
+      main.innerHTML = listPage("log", "Log", "日々の記録・活動ログ");
       break;
-
     case "creation.html":
-      main.innerHTML = listPage(
-        "creation", "Creation", "創作活動・作品置き場"
-      );
+      main.innerHTML = listPage("creation", "Creation", "創作活動・作品置き場");
       break;
-
     case "article.html":
       main.innerHTML = articlePage();
+      break;
+    case "profile.html":
+      main.innerHTML = profilePage();
       break;
   }
 })();
