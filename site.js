@@ -55,15 +55,39 @@ function sortedPosts(type = null) {
 }
 
 
+    function getPostTags(post) {
+    if (Array.isArray(post.tags)) {
+      return post.tags
+        .map(tag => String(tag).trim())
+        .filter(Boolean);
+    }
+
+    // 以前のデータ形式との互換性
+    if (typeof post.tags === "string" && post.tags.trim()) {
+      return post.tags.split(",").map(tag => tag.trim()).filter(Boolean);
+    }
+
+    return [];
+  }
+
   function postCard(post) {
     const image = post.type === "creation" && safeUrl(post.image)
       ? `<img class="creation-thumb" src="${escapeHTML(safeUrl(post.image))}" alt="${escapeHTML(post.title)}">`
       : "";
+
+    const tags = post.type === "creation" ? getPostTags(post) : [];
+    const tagHTML = tags.length
+      ? `<div class="creation-tags">
+          ${tags.map(tag => `<span class="creation-tag">${escapeHTML(tag)}</span>`).join("")}
+        </div>`
+      : "";
+
     return `
-      <article class="post-card">
+      <article class="post-card" data-tags="${escapeHTML(JSON.stringify(tags))}">
         <small>${escapeHTML(post.date)} ・ ${escapeHTML(types[post.type] || "投稿")}</small>
         ${image}
         <h3><a href="article.html?id=${encodeURIComponent(post.id)}">${escapeHTML(post.title)}</a></h3>
+        ${tagHTML}
         <p>${escapeHTML(post.excerpt)}</p>
         <a href="article.html?id=${encodeURIComponent(post.id)}">続きを読む →</a>
       </article>`;
@@ -138,15 +162,45 @@ function sortedPosts(type = null) {
       </section>`;
   }
 
-  function listPage(type, heading, description) {
+    function listPage(type, heading, description) {
+    if (type === "creation") {
+      const allTags = [...new Set(
+        sortedPosts("creation").flatMap(post => getPostTags(post))
+      )].sort((a, b) => a.localeCompare(b, "ja"));
+
+      const filterHTML = `
+        <div class="creation-filters">
+          <button type="button" class="creation-filter active" data-tag="all">
+            すべて
+          </button>
+          ${allTags.map(tag => `
+            <button type="button" class="creation-filter" data-tag="${escapeHTML(tag)}">
+              ${escapeHTML(tag)}
+            </button>
+          `).join("")}
+        </div>
+      `;
+
+      return `
+        ${hero(types[type], heading, description)}
+        <section class="panel">
+          <h2>🎨 作品一覧</h2>
+          ${filterHTML}
+          <div id="creation-list">
+            ${postList(type)}
+          </div>
+          <p id="creation-no-results" hidden>このタグの作品はありません。</p>
+        </section>`;
+    }
+
     return `
       ${hero(types[type], heading, description)}
       <section class="panel">
-        <h2>${type === "news" ? "📢 お知らせ一覧" : type === "log" ? "📖 最近の記録" : "🎨 作品一覧"}</h2>
+        <h2>${type === "news" ? "📢 お知らせ一覧" : "📖 最近の記録"}</h2>
         ${postList(type)}
       </section>`;
   }
-
+  
   function articlePage() {
     const id = new URLSearchParams(location.search).get("id");
     const post = posts.find(item => item.id === id);
@@ -164,13 +218,24 @@ function sortedPosts(type = null) {
       ? `<p><a href="${escapeHTML(attachmentUrl)}" target="_blank" rel="noopener">📎 添付ファイルを開く</a></p>`
       : "";
     const content = escapeHTML(post.content || "").replace(/\n/g, "<br>");
+        const tags = post.type === "creation" ? getPostTags(post) : [];
+    const tagHTML = tags.length
+      ? `<div class="creation-tags">
+          ${tags.map(tag => `<span class="creation-tag">${escapeHTML(tag)}</span>`).join("")}
+        </div>`
+      : "";
     const backPage = post.type === "news" ? "news.html" : post.type === "log" ? "log.html" : "creation.html";
 
     return `
       ${hero(types[post.type] || "ARTICLE", post.title, post.date || "")}
       <article class="panel article-content">
         ${media}
+       <article class="panel article-content">
+        ${media}
         ${post.kind ? `<p><strong>作品の種類：</strong>${escapeHTML(post.kind)}</p>` : ""}
+        ${tagHTML}
+        ${post.kind ? `<p><strong>作品の種類：</strong>${escapeHTML(post.kind)}</p>` : ""}
+        ${tagHTML}
         <p>${content}</p>
         ${attachment}
       </article>
@@ -208,4 +273,45 @@ function sortedPosts(type = null) {
       main.innerHTML = profilePage();
       break;
   }
+
+  // 作品一覧のタグ絞り込み
+  if (page === "creation.html") {
+    const filterButtons = main.querySelectorAll(".creation-filter");
+    const cards = main.querySelectorAll("#creation-list .post-card");
+    const noResults = main.querySelector("#creation-no-results");
+
+    filterButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const selectedTag = button.dataset.tag;
+
+        filterButtons.forEach(item => {
+          item.classList.toggle("active", item === button);
+        });
+
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+          let tags = [];
+
+          try {
+            tags = JSON.parse(card.dataset.tags || "[]");
+          } catch {
+            tags = [];
+          }
+
+          const visible =
+            selectedTag === "all" || tags.includes(selectedTag);
+
+          card.hidden = !visible;
+
+          if (visible) visibleCount++;
+        });
+
+        if (noResults) {
+          noResults.hidden = visibleCount > 0;
+        }
+      });
+    });
+  }
+
 })();
