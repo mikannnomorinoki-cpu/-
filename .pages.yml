@@ -122,8 +122,11 @@ content:
       - name: name
         label: 名前
         type: string
+      - name: shortIntro
+        label: 簡易プロフィール（トップページ用）
+        type: text
       - name: intro
-        label: 自己紹介
+        label: 自己紹介（プロフィールページ用）
         type: text
       - name: other
         label: その他
