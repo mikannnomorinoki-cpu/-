@@ -113,7 +113,7 @@ content:
         options:
           media: files
 
-　- name: profile
+  - name: profile
     label: 👤 プロフィール
     type: file
     path: data/profile.json
