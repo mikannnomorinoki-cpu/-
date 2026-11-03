@@ -972,11 +972,13 @@ body.dark .header .theme-toggle__thumb {
   }
 }
 
-/* サイト名が長い場合は自動で折り返す */
+/* サイト名の折り返し位置を調整 */
 .header .logo {
   white-space: normal;
   overflow-wrap: anywhere;
   min-width: 0;
+  max-width: 180px;
   line-height: 1.2;
-  text-align: left;
+  text-align: center;
+  flex-shrink: 1;
 }
