@@ -113,12 +113,12 @@ content:
         options:
           media: files
 
-  - name: profile
+    - name: profile
     label: 👤 プロフィール
     type: file
     path: data/profile.json
     format: json
-        fields:
+    fields:
       - name: name
         label: 名前
         type: string
@@ -127,9 +127,6 @@ content:
         type: text
       - name: other
         label: その他
-        type: text
-      - name: links
-        label: SNS・外部リンク（1行に1件）
         type: text
       - name: avatarEmoji
         label: アイコンの絵文字
