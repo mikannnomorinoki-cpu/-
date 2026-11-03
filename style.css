@@ -1047,3 +1047,12 @@ body.dark .profile-link:hover {
   background: var(--cyan);
   color: #282c30;
 }
+
+/* プロフィールアイコンを左上に固定 */
+.intro {
+  align-items: start;
+}
+
+.intro .avatar {
+  align-self: start;
+}
