@@ -70,6 +70,23 @@ function sortedPosts(type = null) {
     return [];
   }
 
+  // 作品の種類と複数タグをまとめて取得する
+  function getPostTags(post) {
+    let tags = [];
+
+    if (Array.isArray(post.tags)) {
+      tags = post.tags.map(tag => String(tag).trim());
+    } else if (typeof post.tags === "string" && post.tags.trim()) {
+      tags = post.tags.split(",").map(tag => tag.trim());
+    }
+
+    // 以前からある「作品の種類」もタグとして扱う
+    const kind = String(post.kind || "").trim();
+
+    // 空欄を除外し、重複したタグをまとめる
+    return [...new Set([kind, ...tags].filter(Boolean))];
+  }
+  
   function postCard(post) {
     const image = post.type === "creation" && safeUrl(post.image)
       ? `<img class="creation-thumb" src="${escapeHTML(safeUrl(post.image))}" alt="${escapeHTML(post.title)}">`
@@ -204,6 +221,7 @@ function sortedPosts(type = null) {
   function articlePage() {
     const id = new URLSearchParams(location.search).get("id");
     const post = posts.find(item => item.id === id);
+
     if (!post) {
       return `${hero("NOT FOUND", "記事が見つかりません", "記事が削除されたか、URLが間違っている可能性があります。")}
         <p style="text-align:center"><a href="index.html">ホームへ戻る →</a></p>`;
@@ -211,29 +229,35 @@ function sortedPosts(type = null) {
 
     const imageUrl = safeUrl(post.image);
     const attachmentUrl = safeUrl(post.attachment);
+
     const media = imageUrl
       ? `<p class="creation-image-wrap"><img class="creation-image" src="${escapeHTML(imageUrl)}" alt="${escapeHTML(post.title)}"></p>`
       : "";
+
     const attachment = attachmentUrl
       ? `<p><a href="${escapeHTML(attachmentUrl)}" target="_blank" rel="noopener">📎 添付ファイルを開く</a></p>`
       : "";
+
     const content = escapeHTML(post.content || "").replace(/\n/g, "<br>");
-        const tags = post.type === "creation" ? getPostTags(post) : [];
+
+    const tags = post.type === "creation" ? getPostTags(post) : [];
+
     const tagHTML = tags.length
       ? `<div class="creation-tags">
           ${tags.map(tag => `<span class="creation-tag">${escapeHTML(tag)}</span>`).join("")}
         </div>`
       : "";
-    const backPage = post.type === "news" ? "news.html" : post.type === "log" ? "log.html" : "creation.html";
+
+    const backPage = post.type === "news"
+      ? "news.html"
+      : post.type === "log"
+        ? "log.html"
+        : "creation.html";
 
     return `
       ${hero(types[post.type] || "ARTICLE", post.title, post.date || "")}
       <article class="panel article-content">
         ${media}
-       <article class="panel article-content">
-        ${media}
-        ${post.kind ? `<p><strong>作品の種類：</strong>${escapeHTML(post.kind)}</p>` : ""}
-        ${tagHTML}
         ${post.kind ? `<p><strong>作品の種類：</strong>${escapeHTML(post.kind)}</p>` : ""}
         ${tagHTML}
         <p>${content}</p>
