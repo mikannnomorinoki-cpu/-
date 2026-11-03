@@ -39,12 +39,21 @@
   }
   applySiteSettings();
 
-  function sortedPosts(type = null) {
-    return posts
-      .filter(post => !type || post.type === type)
-      .slice()
-      .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
-  }
+  
+function sortedPosts(type = null) {
+  return posts
+    .map((post, index) => ({ post, index }))
+    .filter(item => !type || item.post.type === type)
+    .sort((a, b) => {
+      const dateOrder = String(b.post.date || "")
+        .localeCompare(String(a.post.date || ""));
+
+      // 日付が同じなら、後から追加された投稿を上にする
+      return dateOrder || b.index - a.index;
+    })
+    .map(item => item.post);
+}
+
 
   function postCard(post) {
     const image = post.type === "creation" && safeUrl(post.image)
