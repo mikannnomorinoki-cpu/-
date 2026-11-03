@@ -251,15 +251,52 @@ function sortedPosts(type = null) {
       <p style="text-align:center; margin-top:30px"><a href="${backPage}">← 一覧に戻る</a></p>`;
   }
 
-  function profilePage() {
+    function profilePage() {
+    // SNS・外部リンクを取得
+    const links = String(profile.links || "")
+      .split("\n")
+      .map(line => {
+        const parts = line.split("|");
+        const label = (parts[0] || "").trim();
+        const url = (parts[1] || "").trim();
+
+        // HTTP・HTTPSのURLだけをリンクとして使用
+        if (!label || !/^https?:\/\//i.test(url)) {
+          return "";
+        }
+
+        return `
+          <a class="profile-link"
+             href="${escapeHTML(url)}"
+             target="_blank"
+             rel="noopener noreferrer">
+            ${escapeHTML(label)} →
+          </a>`;
+      })
+      .filter(Boolean)
+      .join("");
+
+    const linksHTML = links || "<p>リンクはまだありません。</p>";
+
     return `
       ${hero("ABOUT ME", "Profile", "わたしについて")}
       ${profileIntro(false)}
+
       <section class="panel">
-        <h2>🌼 好きなもの</h2>
-        <p>${escapeHTML(profile.favorites || "").replace(/\n/g, "<br>")}</p>
+        <h2>🔗 SNS・外部リンク</h2>
+        <div class="profile-links">
+          ${linksHTML}
+        </div>
       </section>
-      <p style="text-align:center; margin-top:30px"><a href="index.html">← ホームへ戻る</a></p>`;
+
+      <section class="panel">
+        <h2>🌼 その他</h2>
+        <p>${escapeHTML(profile.other || "").replace(/\n/g, "<br>")}</p>
+      </section>
+
+      <p style="text-align:center; margin-top:30px">
+        <a href="index.html">← ホームへ戻る</a>
+      </p>`;
   }
 
   switch (page) {
